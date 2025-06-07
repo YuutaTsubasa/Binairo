@@ -4,11 +4,11 @@ project(Binairo LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# 判斷平台自動處理 SDL2、OpenGL
 if(EMSCRIPTEN)
     add_executable(Binairo main.cpp)
-    target_link_libraries(Binairo SDL2)
-    set_target_properties(Binairo PROPERTIES LINK_FLAGS "-sUSE_SDL=2")
+    target_compile_options(Binairo PRIVATE -sUSE_SDL=2)
+    target_link_options(Binairo PRIVATE -sUSE_SDL=2 -sASYNCIFY)
+    set_target_properties(Binairo PROPERTIES SUFFIX ".html")
 elseif(APPLE)
     # macOS
     message(STATUS "Target: macOS")

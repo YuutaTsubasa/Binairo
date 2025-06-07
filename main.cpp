@@ -2,7 +2,7 @@
 #include <SDL_opengl.h>
 #include <iostream>
 
-auto SDL_main(int argc, char* argv[]) -> int {
+auto main(int argc, char* argv[]) -> int {
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
         std::cerr << "SDL_Init Error: " << SDL_GetError() << std::endl;
         return 1;

@@ -113,8 +113,8 @@ jobs:
           cmake .. -G Xcode
       - name: 打包 Xcode 專案
         run: |
-          cd build
-          zip -r Binairo-xcode.zip ../src/ ../CMakeLists.txt Binairo.xcodeproj
+          cd $GITHUB_WORKSPACE
+          zip -r Binairo-xcode.zip src/ CMakeLists.txt Binairo.xcodeproj
       - name: 上傳 Xcode 專案
         uses: actions/upload-artifact@v4
         with:

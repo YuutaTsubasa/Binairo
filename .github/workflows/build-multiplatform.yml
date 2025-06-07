@@ -90,12 +90,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Copy Game Core Source
-        run: |
-          mkdir -p android/app/src/main/cpp
-          rm -rf android/app/src/main/cpp/*
-          cp -r src/* android/app/src/main/cpp/
-
       - name: Build APK
         working-directory: android
         run: ./gradlew assembleDebug

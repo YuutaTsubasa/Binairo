@@ -6,10 +6,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # 判斷平台自動處理 SDL2、OpenGL
 if(EMSCRIPTEN)
-    # Web: 由 emscripten 提供 SDL2, 不用 pkg-config
-    message(STATUS "Target: Web (Emscripten)")
     add_executable(Binairo main.cpp)
     target_link_libraries(Binairo SDL2)
+    set_target_properties(Binairo PROPERTIES LINK_FLAGS "-sUSE_SDL=2")
 elseif(APPLE)
     # macOS
     message(STATUS "Target: macOS")
@@ -33,7 +32,6 @@ elseif(WIN32)
     add_executable(Binairo main.cpp)
     target_link_libraries(Binairo PRIVATE SDL2::SDL2main SDL2::SDL2 ${OpenGL_LIBRARIES})
 elseif(UNIX)
-    # Linux
     message(STATUS "Target: Linux")
     find_package(PkgConfig REQUIRED)
     pkg_check_modules(SDL2 REQUIRED sdl2)
@@ -42,7 +40,7 @@ elseif(UNIX)
     add_definitions(${SDL2_CFLAGS_OTHER})
     find_package(OpenGL REQUIRED)
     add_executable(Binairo main.cpp)
-    target_link_libraries(Binairo ${SDL2_LIBRARIES} ${OpenGL_LIBRARIES})
+    target_link_libraries(Binairo ${SDL2_LIBRARIES} OpenGL::GL)
 else()
     message(FATAL_ERROR "Unknown platform! This CMakeLists only supports macOS, Linux, Windows, Web.")
 endif()

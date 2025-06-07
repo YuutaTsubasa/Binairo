@@ -28,8 +28,23 @@ elseif(WIN32)
     message(STATUS "Target: Windows")
     find_package(SDL2 CONFIG REQUIRED)
     find_package(OpenGL REQUIRED)
-    add_executable(Binairo main.cpp)
-    target_link_libraries(Binairo PRIVATE SDL2::SDL2main SDL2::SDL2 opengl32)
+
+    add_executable(Binairo WIN32 main.cpp)  # WIN32 參數創建 Windows 應用
+
+    target_link_libraries(Binairo PRIVATE
+            SDL2::SDL2main
+            SDL2::SDL2
+            OpenGL::GL
+    )
+
+    # 複製 SDL2 DLL 到輸出目錄 (如果使用動態鏈接)
+    if(TARGET SDL2::SDL2)
+        add_custom_command(TARGET Binairo POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                $<TARGET_FILE:SDL2::SDL2>
+                $<TARGET_FILE_DIR:Binairo>
+        )
+    endif()
 elseif(UNIX)
     message(STATUS "Target: Linux")
     find_package(PkgConfig REQUIRED)

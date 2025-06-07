@@ -99,3 +99,24 @@ jobs:
         with:
           name: Binairo-android
           path: android/app/build/outputs/apk/debug/app-debug.apk
+
+  build-ios:
+    runs-on: macos-14  # 要 macos 的 runner!
+    steps:
+      - uses: actions/checkout@v4
+      - name: 安裝依賴（brew 可省略）
+        run: brew install sdl2
+      - name: 產生 Xcode 專案
+        run: |
+          mkdir build
+          cd build
+          cmake .. -G Xcode
+      - name: 打包 Xcode 專案
+        run: |
+          cd build
+          zip -r Binairo-xcode.zip Binairo.xcodeproj
+      - name: 上傳 Xcode 專案
+        uses: actions/upload-artifact@v4
+        with:
+          name: Binairo-xcode
+          path: build/Binairo-xcode.zip

@@ -1,0 +1,81 @@
+name: Build Binairo Multi-Platform
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+jobs:
+  build-macos:
+    name: Build on macOS
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install SDL2
+        run: brew install sdl2
+      - name: Build
+        run: |
+          mkdir build && cd build
+          cmake ..
+          cmake --build .
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Binairo-macOS
+          path: build/Binairo
+
+  build-linux:
+    name: Build on Linux
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install SDL2
+        run: sudo apt-get update && sudo apt-get install -y libsdl2-dev
+      - name: Build
+        run: |
+          mkdir build && cd build
+          cmake ..
+          cmake --build .
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Binairo-linux
+          path: build/Binairo
+
+  build-windows:
+    name: Build on Windows
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install SDL2 (via Chocolatey)
+        run: choco install -y sdl2
+      - name: Build
+        run: |
+          mkdir build
+          cd build
+          cmake .. -G "Visual Studio 17 2022" -A x64
+          cmake --build . --config Release
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Binairo-windows
+          path: build/Release/Binairo.exe
+
+  build-web:
+    name: Build for Web (Emscripten)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Emscripten
+        uses: mymindstorm/setup-emsdk@v14
+        with:
+          version: latest
+      - name: Build
+        run: |
+          mkdir build && cd build
+          emcmake cmake ..
+          emmake make
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Binairo-web
+          path: |
+            build/Binairo.html
+            build/Binairo.js
+            build/Binairo.wasm

@@ -1,22 +1,48 @@
-cmake_minimum_required(VERSION 3.31)
-project(Binairo)
+cmake_minimum_required(VERSION 3.16)
+project(Binairo LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(SDL2_ROOT /opt/homebrew/opt/sdl2)
-set(CMAKE_PREFIX_PATH ${SDL2_ROOT})
-
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(SDL2 REQUIRED sdl2)
-
-include_directories(${SDL2_INCLUDE_DIRS})
-link_directories(${SDL2_LIBRARY_DIRS})
-add_definitions(${SDL2_CFLAGS_OTHER})
-
-find_library(OpenGL_LIBRARY OpenGL)
-include_directories(/System/Library/Frameworks/OpenGL.framework/Headers)
-
-add_executable(Binairo main.cpp)
-
-target_link_libraries(Binairo ${SDL2_LIBRARIES} ${OpenGL_LIBRARY})
+# 判斷平台自動處理 SDL2、OpenGL
+if(EMSCRIPTEN)
+    # Web: 由 emscripten 提供 SDL2, 不用 pkg-config
+    message(STATUS "Target: Web (Emscripten)")
+    add_executable(Binairo main.cpp)
+    target_link_libraries(Binairo SDL2)
+elseif(APPLE)
+    # macOS
+    message(STATUS "Target: macOS")
+    # 指定 homebrew sdl2 路徑
+    set(SDL2_ROOT /opt/homebrew/opt/sdl2)
+    set(CMAKE_PREFIX_PATH ${SDL2_ROOT})
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(SDL2 REQUIRED sdl2)
+    include_directories(${SDL2_INCLUDE_DIRS})
+    link_directories(${SDL2_LIBRARY_DIRS})
+    add_definitions(${SDL2_CFLAGS_OTHER})
+    find_library(OpenGL_LIBRARY OpenGL)
+    include_directories(/System/Library/Frameworks/OpenGL.framework/Headers)
+    add_executable(Binairo main.cpp)
+    target_link_libraries(Binairo ${SDL2_LIBRARIES} ${OpenGL_LIBRARY})
+elseif(WIN32)
+    # Windows: 建議配合 vcpkg，找 SDL2 和 OpenGL
+    message(STATUS "Target: Windows")
+    find_package(SDL2 CONFIG REQUIRED)
+    find_package(OpenGL REQUIRED)
+    add_executable(Binairo main.cpp)
+    target_link_libraries(Binairo PRIVATE SDL2::SDL2main SDL2::SDL2 ${OpenGL_LIBRARIES})
+elseif(UNIX)
+    # Linux
+    message(STATUS "Target: Linux")
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(SDL2 REQUIRED sdl2)
+    include_directories(${SDL2_INCLUDE_DIRS})
+    link_directories(${SDL2_LIBRARY_DIRS})
+    add_definitions(${SDL2_CFLAGS_OTHER})
+    find_package(OpenGL REQUIRED)
+    add_executable(Binairo main.cpp)
+    target_link_libraries(Binairo ${SDL2_LIBRARIES} ${OpenGL_LIBRARIES})
+else()
+    message(FATAL_ERROR "Unknown platform! This CMakeLists only supports macOS, Linux, Windows, Web.")
+endif()

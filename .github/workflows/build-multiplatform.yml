@@ -83,3 +83,24 @@ jobs:
             build/Binairo.html
             build/Binairo.js
             build/Binairo.wasm
+
+  build-android:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Copy Game Core Source
+        run: |
+          rm -rf android/app/src/main/cpp/*
+          cp -r src/* android/app/src/main/cpp/
+
+      - name: Build APK
+        working-directory: android
+        run: ./gradlew assembleDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Binairo-android
+          path: android/app/build/outputs/apk/debug/app-debug.apk
